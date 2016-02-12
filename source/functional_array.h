@@ -3,7 +3,7 @@
 *  and provides a number of useful and handy functions
 *  that operate on them.
 *
-*  @author	Jonatan K³osko
+*  @author	Jonatan Klosko
 */
 
 #ifndef FUNCTIONAL_ARRAY_H
@@ -46,9 +46,9 @@ public:
 
 	using vector::push_back;	// must be public in order to use std::back_inserter
 
-								/**
-								*  Creates an empty Array.
-								*/
+	/**
+	*  Creates an empty Array.
+	*/
 	Array()
 		: vector() {
 	}
@@ -202,7 +202,8 @@ public:
 	*  @return				reference to self
 	*/
 	Array<T>& clear() {
-		this->swap(Array<T>());
+		Array<T> cleaner;
+		this->swap(cleaner);
 
 		return *this;
 	}
@@ -563,12 +564,12 @@ private:
 	//	example: real_type<Array<Array<int>>>::type is int
 	template <class C>
 	struct real_type {
-		using type = typename std::decay<C>::type;
+		using type = C;
 	};
 
 	template <class C>
 	struct real_type<Array<C>> {
-		using type = typename std::decay<decltype(std::declval<real_type<C>::type>())>::type;
+		using type = typename real_type<C>::type;
 	};
 
 	template <class ResultArray, class C>
@@ -604,7 +605,7 @@ public:
 	*
 	*  @return				 copy of the Array with dimension reduced by one
 	*/
-	template <class = typename std::enable_if<is_array<T>::value>::type>
+	template <bool EnableBool = true, class = typename std::enable_if<is_array<T>::value && EnableBool>::type>
 	T flatten() const {
 		T result;
 

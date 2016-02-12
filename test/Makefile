@@ -1,3 +1,4 @@
+CXX = g++
 CXXFLAGS = -g -std=c++14 -Wall -Wextra -pedantic -I../source -I../external
 
 PRGM  = test

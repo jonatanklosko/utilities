@@ -1,3 +1,13 @@
+# Makefile output files
 *.o
 *.d
 *.exe
+
+# Visual Studio files
+Debug
+.vs
+*.sdf
+*.sln
+*.opendb
+*.vcxproj
+*.filters

@@ -1,2 +1,2 @@
-# utilities
+# Utilities
 C++ useful code

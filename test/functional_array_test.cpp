@@ -98,6 +98,7 @@ TEST_CASE("all method", "[Array]") {
 }
 
 TEST_CASE("allDifferent method", "[Array]") {
+
 	SECTION("should return true if every element is unique")
 		REQUIRE( oneToFive.allDifferent() );
 
@@ -109,6 +110,7 @@ TEST_CASE("allDifferent method", "[Array]") {
 }
 
 TEST_CASE("allSame method", "[Array]") {
+
 	SECTION("should return true if all elements are equal to each other")
 		REQUIRE( Array<int>(5, 10).allSame() );
 
@@ -120,6 +122,7 @@ TEST_CASE("allSame method", "[Array]") {
 }
 
 TEST_CASE("clear method", "[Array]") {
+
 	SECTION("after call an Array should be empty", "[Array]") {
 		Array<int> array{1, 2, 3};
 		REQUIRE( array.clear() == emptyArray );
@@ -128,6 +131,7 @@ TEST_CASE("clear method", "[Array]") {
 }
 
 TEST_CASE("combinations method", "[Array]") {
+
 	SECTION("should return an Array containing Arrays of size n, each with one combination of n elements") {
 		Array<int> array{1, 2, 3};
 		Array<Array<int>> twoNumsCombinations{ {1, 2}, {1, 3}, {2, 3} };
@@ -207,6 +211,120 @@ TEST_CASE("copy method", "[Array]") {
 	SECTION("modifying copy should not modify the Array") {
 		Array<int> copy = oneToFive.copy();
 		copy.push(6);
-		REQUIRE(copy != oneToFive);
+		REQUIRE( copy != oneToFive );
 	}
+}
+
+TEST_CASE("deleteAt method", "[Array]") {
+
+	Array<int> oneToFour{ 1, 2, 3, 4 };
+
+	SECTION("should remove element at the given position")
+		REQUIRE( oneToFour.deleteAt(2) == MakeArray(1, 2, 4) );
+
+	SECTION("deleting an element should decrease size of an Array by one") {
+		oneToFour.deleteAt(2);
+		REQUIRE( oneToFour.size() == 3 );
+	}
+}
+
+TEST_CASE("deleteBetween method", "[Array]") {
+	
+	Array<int> oneToFour{ 1, 2, 3, 4 };
+
+	SECTION("should remove all elements at positions greater or equal to the given beginning and less than given end")
+		REQUIRE( oneToFour.deleteBetween(1, 3) == MakeArray(1, 4) );
+
+	SECTION("deleting n elements should decrease the size of an Array by n")
+		REQUIRE( oneToFour.deleteBetween(1, 3).size() == 2 );
+}
+
+TEST_CASE("deleteIf method", "[Array]") {
+
+	Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+
+	SECTION("should remove all elements satisfying the given condition") {
+		REQUIRE( oneToSix.deleteIf(odd) == MakeArray(2, 4, 6) );
+		REQUIRE( oneToSix.size() == 3 );
+	}
+}
+
+TEST_CASE("deleteObject method", "[Array]") {
+
+	SECTION("should remove all elements equal to the given one") {
+		Array<int> array{1, 2, 2, 3, 2};
+		REQUIRE( array.deleteObject(2) == MakeArray(1, 3) );
+		REQUIRE( array.size() == 2 );
+	}
+}
+
+TEST_CASE("deleteObjects method", "[Array]") {
+
+	SECTION("should remove all elements equal to one of the elements in the given Array") {
+		Array<int> oneAndTwo{ 1, 2 };
+		Array<int> array{1, 2, 3, 4, 1, 2};
+		REQUIRE( array.deleteObjects(oneAndTwo) == MakeArray(3, 4) );
+		REQUIRE( array.size() == 2 );
+	}
+}
+
+TEST_CASE("each method", "[Array]") {
+
+	SECTION("should perform the given function for each element") {
+		int sum = 0;
+		oneToFive.each([&](int n) { sum += n; });
+		REQUIRE( sum == 15 );
+	}
+}
+
+TEST_CASE("eachAssign method", "[Array]") {
+
+	SECTION("should assign to each element result of passing it as an argument to the given function") {
+		Array<int> oneToThree{ 1, 2, 3 };
+		Array<int> threeToFive{ 3, 4, 5 };
+		
+		oneToThree.eachAssign(add(2));
+		REQUIRE( oneToThree == threeToFive );
+	}
+}
+
+TEST_CASE("endsWith method", "[Array]") {
+
+	SECTION("should return true if the given Array is an ending of an Array") {
+		Array<int> threeToFive{ 3, 4, 5 };
+		REQUIRE(oneToFive.endsWith(threeToFive));
+	}
+
+	SECTION("should return true if the given Array is empty")
+		REQUIRE( oneToFive.endsWith(emptyArray) );
+
+	SECTION("should return false if the given Array is not an ending of an Array") {
+		Array<int> fourToSix{ 4, 5, 6 };
+		REQUIRE_FALSE( oneToFive.endsWith(fourToSix) );
+	}
+}
+
+TEST_CASE("filter method", "[Array]") {
+
+	Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+
+	SECTION("should keep in an Array only these elements that satisfies the given condition") {
+		REQUIRE( oneToSix.filter(even) == MakeArray(2, 4, 6) );
+		REQUIRE( oneToSix.size() == 3 );
+	}
+
+	SECTION("if every element satisfies the given condition, an Array should not change")
+		REQUIRE( oneToSix.filter(greaterThan(0)) == oneToSix );
+
+	SECTION("if no element setisfies the given condition, an Array should become empty")
+		REQUIRE( oneToSix.filter(lessThan(0)) == emptyArray );
+}
+
+TEST_CASE("first method", "[Array]") {
+
+	SECTION("when no argument given should return first element of an Array")
+		REQUIRE( oneToFive.first() == 1 );
+
+	SECTION("when a number is given should return new Array containing specified number of the first elements")
+		REQUIRE( oneToFive.first(3) == MakeArray(1, 2, 3) );
 }

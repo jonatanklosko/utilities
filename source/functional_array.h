@@ -443,6 +443,14 @@ public:
 		return *this;
 	}
 
+	template <typename Function>
+	const Array<T>& each(const Function& function) const {
+		for (const T& item : *this)
+			function(item);
+
+		return *this;
+	}
+
 	/**
 	*  Calls given function once for each element, passing it as an argument by reference
 	*  and assigns the function result.

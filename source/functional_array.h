@@ -37,6 +37,7 @@ public:
 
 	using vector::begin;
 	using vector::rbegin;
+	using vector::empty;
 	using vector::end;
 	using vector::rend;
 	using vector::size;
@@ -366,7 +367,7 @@ public:
 	}
 
 	/**
-	*  Removes all Array elements being in the given range (exclusive).
+	*  Removes all Array elements being in the given range (excluding the end).
 	*
 	*  @param fromIndex		index of the first element to be removed
 	*  @param toIndex		index of first element not to be removed
@@ -535,7 +536,7 @@ public:
 	}
 
 	/**
-	*  Assigns specified object to each element of the Array in given range (exclusive).
+	*  Assigns specified object to each element of the Array in given range (excluding the end).
 	*
 	*  @param object
 	*  @param fromIndex		index of the first element to be filled (0 by default)
@@ -581,15 +582,15 @@ private:
 	};
 
 	template <class ResultArray, class C>
-	void flattenAllDimensionsImpl(ResultArray& resultArray, const Array<C>& array) const {
+	void flattenImpl(ResultArray& resultArray, const Array<C>& array) const {
 		for (const C& item : array)
 			resultArray.push_back(item);
 	}
 
 	template <class ResultArray, class C>
-	void flattenAllDimensionsImpl(ResultArray& resultArray, const Array<Array<C>>& array) const {
+	void flattenImpl(ResultArray& resultArray, const Array<Array<C>>& array) const {
 		for (const Array<C>& item : array)
-			flattenAllDimensionsImpl(resultArray, item);
+			flattenImpl(resultArray, item);
 	}
 
 public:
@@ -599,11 +600,12 @@ public:
 	*
 	*  @return				one-dimensional Array
 	*/
-	template <class RealType = typename real_type<T>::type>
-	Array<RealType> flattenAllDimensions() const {
+	template <class RealType = typename real_type<T>::type,
+				bool EnableBool = true, class = typename std::enable_if<is_array<T>::value && EnableBool>::type>
+	Array<RealType> flatten() const {
 		Array<RealType> result;
 
-		flattenAllDimensionsImpl(result, *this);
+		flattenImpl(result, *this);
 
 		return result;
 	}
@@ -614,7 +616,7 @@ public:
 	*  @return				 copy of the Array with dimension reduced by one
 	*/
 	template <bool EnableBool = true, class = typename std::enable_if<is_array<T>::value && EnableBool>::type>
-	T flatten() const {
+	T flattenByOne() const {
 		T result;
 
 		for (const T& item : *this)
@@ -1221,7 +1223,7 @@ public:
 
 	/**
 	*  Returns a subarray containing the elements of the Array
-	*  in given (exclusive) range.
+	*  in the given range (excluding the end).
 	*
 	*  @param fromIndex		beginning of the subarray
 	*  @param toIndex		end of the subarray (last element of the Array be default),
@@ -1430,7 +1432,6 @@ public:
 
 private:
 	using vector::back;
-	using vector::empty;
 	using vector::erase;
 	using vector::front;
 	using vector::pop_back;

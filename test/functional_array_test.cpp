@@ -205,7 +205,7 @@ TEST_CASE("count method", "[Array]") {
 
 TEST_CASE("copy method", "[Array]") {
 
-	SECTION("should return copy of self")
+	SECTION("should return copy of an Array")
 		REQUIRE( oneToFive.copy() == oneToFive );
 
 	SECTION("modifying copy should not modify the Array") {
@@ -327,4 +327,136 @@ TEST_CASE("first method", "[Array]") {
 
 	SECTION("when a number is given should return new Array containing specified number of the first elements")
 		REQUIRE( oneToFive.first(3) == MakeArray(1, 2, 3) );
+}
+
+TEST_CASE("fill method", "[Array]") {
+
+	Array<int> sixZeros(6);
+
+	SECTION("when only an object is given, should assign it to every element in an Array")
+		REQUIRE( sixZeros.fill(1) == Array<int>(6, 1) );
+
+	SECTION("when beginning position is specified, should assign the given object to elements at positions greater or equal to the given one")
+		REQUIRE( sixZeros.fill(1, 2) == MakeArray(0, 0, 1, 1, 1, 1) );
+
+	SECTION("when both beginning and end positions are specified, should assign the given object to elements at positions between them (including the beginning and excluding the end)")
+		REQUIRE( sixZeros.fill(1, 2, 4) == MakeArray(0, 0, 1, 1, 0, 0) );
+}
+
+TEST_CASE("flatten method", "[Array]") {
+
+	SECTION("when an Array is multi-dimensional, should return a one-dimensional Array") {
+		Array<Array<Array<int>>> threeDimensional{ { {1, 2}, {3, 4} }, { {5, 6}, {7, 8} } };
+		Array<int> asOneDimensional{ 1, 2, 3, 4, 5, 6, 7, 8 };
+		REQUIRE( threeDimensional.flatten() == asOneDimensional );
+	}
+}
+
+TEST_CASE("flattenByOne method", "[Array]") {
+
+	SECTION("when an Array is two-dimensional, should return a one-dimensional Array") {
+		Array<Array<int>> twoDimensional{ { 1, 2 }, { 3, 4 }, { 5, 6 } };
+		Array<int> asOneDimensional{ 1, 2, 3, 4, 5, 6 };
+		REQUIRE( twoDimensional.flattenByOne() == asOneDimensional );
+	}
+
+	SECTION("when an Array is three-dimensional, should return a two-dimensional Array") {
+		Array<Array<Array<int>>> threeDimensional{ { { 1, 2 },{ 3, 4 } },{ { 5, 6 },{ 7, 8 } } };
+		Array<Array<int>> asTwoDimensional{ { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } };
+		REQUIRE( threeDimensional.flattenByOne() == asTwoDimensional );
+	}
+}
+
+TEST_CASE("includes method", "[Array]") {
+
+	SECTION("should return true if an Array contains at least one element equal to the given one") {
+		REQUIRE( oneToFive.includes(3) );
+		REQUIRE( Array<int>(5, 10).includes(10) );
+	}
+
+	SECTION("should return false if no element in an Array is equal to the given one")
+		REQUIRE_FALSE( oneToFive.includes(0) );
+
+	SECTION("should return false if an Array is empty")
+		REQUIRE_FALSE( emptyArray.includes(0) );
+}
+
+TEST_CASE("indexOf method", "[Array]") {
+
+	SECTION("should return the first index of an Array where an element is equal to the given one") {
+		REQUIRE( oneToFive.indexOf(2) == 1 );
+		REQUIRE( Array<int>(5, 10).indexOf(10) == 0 );
+	}
+
+	SECTION("should return -1 if an Array does not contain the given object")
+		REQUIRE( oneToFive.indexOf(10) == -1 );
+
+	SECTION("when an initial index is specified should start searching from it") {
+		REQUIRE( oneToFive.indexOf(1, 2) == -1 );
+		REQUIRE( Array<int>(10, 10).indexOf(10, 5) == 5 );
+	}
+}
+
+TEST_CASE("indexWhere method", "[Array]") {
+
+	SECTION("should return the first index of an Array where an element setisfies the given condition") {
+		REQUIRE( oneToFive.indexWhere(even) == 1 );
+		REQUIRE( Array<int>(5, 10).indexWhere(even) == 0 );
+	}
+
+	SECTION("should return -1 if no element in an Array satisfies the given condition")
+		REQUIRE( oneToFive.indexWhere(greaterThan(10)) == -1 );
+
+	SECTION("when an initial index is specified should start searching from it") {
+		REQUIRE( oneToFive.indexWhere(even, 3) == 3 );
+		REQUIRE( Array<int>(10, 10).indexWhere(even, 5) == 5 );
+	}
+}
+
+TEST_CASE("insert method", "[Array]") {
+
+	Array<int> oneToThree{ 1, 2, 3 };
+
+	SECTION("should insert the given object before an element at the given position")
+		REQUIRE( oneToThree.insert(1, 2) == MakeArray(1, 2, 2, 3) );
+
+	SECTION("should insert any number of objects (saving the order)")
+		REQUIRE( oneToThree.insert(2, 5, 6, 7, 8) == MakeArray(1, 2, 5, 6, 7, 8, 3) );
+
+	SECTION("when the given index is equal to the size of an Array, should append given elements to the end")
+		REQUIRE( oneToThree.insert(3, 4) == MakeArray(1, 2, 3, 4) );
+
+	SECTION("when the given index greater than the size of an Array, should resize the Array with the default values and then append the given objects to the end") {
+		REQUIRE( oneToThree.insert(6, 10) == MakeArray(1, 2, 3, 0, 0, 0, 10) );
+		REQUIRE( Array<int>().insert(4, 1, 2, 3) == MakeArray(0, 0, 0, 0, 1, 2, 3) );
+	}
+}
+
+TEST_CASE("isEmpty method", "[Array]") {
+
+	SECTION("should return true if an Array have 0 size")
+		REQUIRE( emptyArray.isEmpty() );
+
+	SECTION("should return false if an Array have size greater than 0") {
+		REQUIRE_FALSE( oneToFive.isEmpty() );
+		REQUIRE_FALSE( Array<int>(2).isEmpty() );
+	}
+}
+
+TEST_CASE("join method", "[Array]") {
+
+	SECTION("should return empty string then an Array is empty") {
+		REQUIRE( emptyArray.join() == "" );
+		REQUIRE( emptyArray.join("separator") == "" );
+	}
+
+	SECTION("when no argument is given should return a string created by sticking all elements together as strings") {
+		REQUIRE( oneToFive.join() == "12345" );
+		REQUIRE( Array<int>(5, 10).join() == "1010101010" );
+	}
+
+	SECTION("when separator is specified should insert it between each two elements") {
+		REQUIRE( oneToFive.join(", ") == "1, 2, 3, 4, 5" );
+		REQUIRE( oneToFive.join("word") == "1word2word3word4word5" );
+	}
 }

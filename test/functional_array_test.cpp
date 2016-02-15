@@ -503,3 +503,85 @@ TEST_CASE("lastIndexWhere method", "[Array]") {
 		REQUIRE( MakeArray(1, 2, 1, 2, 1, 2).lastIndexWhere(even, 4) == 3 );
 	}
 }
+
+TEST_CASE("length method", "[Array]") {
+
+	SECTION("should return size of an Array") {
+		REQUIRE( oneToFive.length() == 5 );
+		REQUIRE( Array<int>(10).length() == 10 );
+	}
+}
+
+TEST_CASE("map method", "[Array]") {
+
+	SECTION("should return a new Array with results of calling the given function on each element") {
+		REQUIRE( oneToFive.map(add(10)) == MakeArray(11, 12, 13, 14, 15) );
+		REQUIRE( oneToFive.map(multiplyBy(-1.0)) == MakeArray(-1.0, -2.0, -3.0, -4.0, -5.0) );
+	}
+
+	SECTION("should infer types correctly")
+		REQUIRE( oneToFive.map([](int n) { return std::to_string(n) + "!"; }) == (Array<std::string>{"1!", "2!", "3!", "4!", "5!"}) );
+
+	SECTION("when an Array is empty, should return a new Array of correct type") {
+		std::string (*intToString)(int) = &std::to_string;
+		REQUIRE( emptyArray.map(intToString) == Array<std::string>() );
+				// other possibility: emptyArray.map<std::string(int)>(std::to_string);
+	}
+}
+
+TEST_CASE("max method", "[Array]") {
+
+	SECTION("should return the largets element of an Array") {
+		REQUIRE( oneToFive.max() == 5 );
+		REQUIRE( Array<int>(5, 10).max() == 10 );
+	}
+}
+
+TEST_CASE("min method", "[Array]") {
+
+	SECTION("shoul return the smallest element of an Array") {
+		REQUIRE( oneToFive.min() == 1 );
+		REQUIRE( Array<int>(5, 10).min() == 10 );
+	}
+}
+
+TEST_CASE("nonEmpty method", "[Array]") {
+
+	SECTION("should return false if an Array have 0 size")
+		REQUIRE_FALSE( emptyArray.nonEmpty() );
+
+	SECTION("should return true if an Array have size greater than 0") {
+		REQUIRE( oneToFive.nonEmpty() );
+		REQUIRE( Array<int>(2).nonEmpty() );
+	}
+}
+
+TEST_CASE("partition method", "[Array]") {
+
+	SECTION("should reaarrange the elements in an Array basing on the given condition, saving the order at the same time") {
+		Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+		REQUIRE( oneToSix.partition(odd) == MakeArray(1, 3, 5, 2, 4, 6) );
+		REQUIRE( oneToSix.partition(even) == MakeArray(2, 4, 6, 1, 3, 5) );
+		REQUIRE( Array<int>(5, 10).partition(odd) == Array<int>(5, 10) );
+	}
+
+	SECTION("when an Array is empty, should return the Array and it still should be empty")
+		REQUIRE( Array<int>().partition(even) == emptyArray );
+}
+
+TEST_CASE("permutations method", "[Array]") {
+
+	SECTION("should return new Array containng Arrays, each with single permutation of all elements") {
+		Array<Array<int>> oneTwoThreePermutations{ {1, 2, 3}, { 1, 3, 2 }, { 2, 1, 3}, {2, 3, 1}, {3, 1, 2}, {3, 2, 1} };
+		REQUIRE( MakeArray(1, 2, 3).permutations() == oneTwoThreePermutations );
+
+		REQUIRE( MakeArray(1, 2, 3, 4, 5).permutations().size() == 120 );
+		REQUIRE( MakeArray(1, 2, 3, 4, 5, 6, 7, 8).permutations().size() == 40320 );
+	}
+
+	SECTION("should a sorted Array of sorted Arrays")
+		REQUIRE( MakeArray(1, 2, 3).permutations() == MakeArray(3, 1, 2).permutations() );
+
+	SECTION("when an Array is empty, should return a new empty Array containing one empty Array")
+		REQUIRE( emptyArray.permutations() == Array<Array<int>>(1) );
+}

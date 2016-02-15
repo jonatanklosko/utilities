@@ -833,7 +833,7 @@ public:
 	*
 	*  @return				size of the Array
 	*/
-	size_type length() {
+	size_type length() const {
 		return size();
 	}
 
@@ -872,6 +872,9 @@ public:
 	*  @return				the maximal element
 	*/
 	T max() const {
+		if (empty())
+			throw std::logic_error("max cannot return the largest element when array is empty");
+
 		return *std::max_element(begin(), end());
 	}
 
@@ -881,6 +884,9 @@ public:
 	*  @return				the minimal element
 	*/
 	T min() const {
+		if (empty())
+			throw std::logic_error("min cannot return the smallest element when array is empty");
+
 		return *std::min_element(begin(), end());
 	}
 

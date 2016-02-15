@@ -322,7 +322,7 @@ TEST_CASE("filter method", "[Array]") {
 
 TEST_CASE("first method", "[Array]") {
 
-	SECTION("when no argument given should return first element of an Array")
+	SECTION("when no argument given should return the first element of an Array")
 		REQUIRE( oneToFive.first() == 1 );
 
 	SECTION("when a number is given should return new Array containing specified number of the first elements")
@@ -458,5 +458,48 @@ TEST_CASE("join method", "[Array]") {
 	SECTION("when separator is specified should insert it between each two elements") {
 		REQUIRE( oneToFive.join(", ") == "1, 2, 3, 4, 5" );
 		REQUIRE( oneToFive.join("word") == "1word2word3word4word5" );
+	}
+}
+
+TEST_CASE("last method", "[Array]") {
+
+	SECTION("when no argument given should return the last element of an Array")
+		REQUIRE( oneToFive.last() == 5 );
+
+	SECTION("when a number is given should return new Array containing specified number of the last elements")
+		REQUIRE( oneToFive.last(3) == MakeArray(3, 4, 5) );
+}
+
+TEST_CASE("lastIndexOf method", "[Array]") {
+
+	SECTION("should return the last index of an Array where an element is equal to the given one") {
+		REQUIRE( oneToFive.lastIndexOf(2) == 1 );
+		REQUIRE( Array<int>(5, 10).lastIndexOf(10) == 4 );
+	}
+
+	SECTION("should return -1 if an Array does not contain the given object")
+		REQUIRE( oneToFive.lastIndexOf(10) == -1 );
+
+	SECTION("when an initial index is specified should start searching from it (going to the left)") {
+		REQUIRE( oneToFive.lastIndexOf(4, 1) == -1 );
+		REQUIRE( Array<int>(10, 10).lastIndexOf(10, 5) == 5 );
+		REQUIRE( MakeArray(1, 2, 1, 2, 1, 2).lastIndexOf(1, 3) == 2 );
+	}
+}
+
+TEST_CASE("lastIndexWhere method", "[Array]") {
+
+	SECTION("should return the last index of an Array where an element setisfies the given condition") {
+		REQUIRE( oneToFive.lastIndexWhere(even) == 3 );
+		REQUIRE( Array<int>(5, 10).lastIndexWhere(even) == 4 );
+	}
+
+	SECTION("should return -1 if no element in an Array satisfies the given condition")
+		REQUIRE( oneToFive.lastIndexWhere(greaterThan(10)) == -1 );
+
+	SECTION("when an initial index is specified should start searching from it (going to the left)") {
+		REQUIRE( oneToFive.lastIndexWhere(even, 3) == 3 );
+		REQUIRE( Array<int>(10, 10).lastIndexWhere(even, 5) == 5 );
+		REQUIRE( MakeArray(1, 2, 1, 2, 1, 2).lastIndexWhere(even, 4) == 3 );
 	}
 }

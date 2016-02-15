@@ -792,7 +792,7 @@ public:
 		if (empty())
 			return -1;
 
-		return lastIndexOf(size() - 1);
+		return lastIndexOf(object, size() - 1);
 	}
 
 	/**

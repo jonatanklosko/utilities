@@ -1456,7 +1456,7 @@ private:
 	}
 
 	template <typename MemberFunReturnType, class C>
-	MemberFunReturnType extractValue(const T& item, MemberFunReturnType(C::*memberFunction)() const) {
+	MemberFunReturnType extractValue(const T& item, MemberFunReturnType(C::*memberFunction)() const) const {
 		return (item.*memberFunction)();
 	}
 

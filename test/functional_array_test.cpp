@@ -4,6 +4,22 @@
 
 #include "functors.h"
 
+// Tests resources
+
+class Person {
+public:
+	Person(std::string name, int age)
+		: name(name), age(age) { }
+
+	int getAge() const { return age; }
+
+	std::string name;
+private:
+	int age;
+};
+
+// end tests resources
+
 TEST_CASE("Array constructors", "[Array]") {
 
 	SECTION("should be empty when created without arguments")
@@ -525,6 +541,16 @@ TEST_CASE("map method", "[Array]") {
 		std::string (*intToString)(int) = &std::to_string;
 		REQUIRE( emptyArray.map(intToString) == Array<std::string>() );
 				// other possibility: emptyArray.map<std::string(int)>(std::to_string);
+	}
+
+	SECTION("should support both public member variable pointer and const member function pointer") {
+		const Array<Person> people{ Person("Harry", 18),
+									Person("John", 85),
+									Person("Albert", 33),
+									Person("Jennifer", 35) };
+
+		REQUIRE( people.map(&Person::name) == MakeArray(std::string("Harry"), "John", "Albert", "Jennifer") );
+		REQUIRE( people.map(&Person::getAge) == MakeArray(18, 85, 33, 35) );
 	}
 }
 

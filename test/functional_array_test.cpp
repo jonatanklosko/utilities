@@ -3,7 +3,6 @@
 #include "functional_array.h"
 
 #include "functors.h"
-#include <vector>
 
 TEST_CASE("Array constructors", "[Array]") {
 
@@ -584,4 +583,156 @@ TEST_CASE("permutations method", "[Array]") {
 
 	SECTION("when an Array is empty, should return a new empty Array containing one empty Array")
 		REQUIRE( emptyArray.permutations() == Array<Array<int>>(1) );
+}
+
+TEST_CASE("pop method", "[Array]") {
+
+	Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+
+	SECTION("should remove the last element from an Array and return it") {
+		REQUIRE( oneToSix.pop() == 6 );
+		REQUIRE( oneToSix.size() == 5 );
+		REQUIRE_FALSE( oneToSix.includes(6) );
+	}
+
+	SECTION("when a number given, should remove the number of last elements and return them as new Array") {
+		REQUIRE( oneToSix.pop(3) == MakeArray(4, 5, 6) );
+		REQUIRE( oneToSix.size() == 3 );
+		REQUIRE( oneToSix == MakeArray(1, 2, 3) );
+	}
+
+	SECTION("when the given number is greater than the size of an Array, should clear the Array and return new Array with all elements") {
+		REQUIRE( oneToSix.pop(10) == MakeArray(1, 2, 3, 4, 5, 6) );
+		REQUIRE( oneToSix.empty() );
+	}
+}
+
+TEST_CASE("push method", "[Array]") {
+
+	SECTION("should take any number of elements and append them to the end of an Array") {
+		REQUIRE( MakeArray(1).push(2) == MakeArray(1, 2) );
+		REQUIRE( MakeArray(1, 2, 3).push(4, 5, 6) == MakeArray(1, 2, 3, 4, 5, 6) );
+
+		Array<int> oneToThree{ 1, 2, 3 };
+		REQUIRE( oneToThree.push(1, 2).size() == 5 );
+		REQUIRE( oneToThree.endsWith(MakeArray(1, 2)) );
+	}
+}
+
+TEST_CASE("random method", "[Array]") {
+
+	SECTION("should return an element from an Array") {
+		REQUIRE( oneToFive.includes(oneToFive.random()) );
+	}
+
+	SECTION("when a number is given, should return new Array with unique elements of an Array") {
+		REQUIRE( oneToFive.random(3).allDifferent() );
+		REQUIRE( oneToFive.random(3).all([](int n){ return oneToFive.includes(n); }) );
+	}
+
+	SECTION("when the given number is greater than the size of an Array, should return new Array containing all elements of the Array")
+		REQUIRE( oneToFive.random(10).size() == 5 );
+}
+
+TEST_CASE("reduce method", "[Array]") {
+
+	Array<std::string> abcd{"a", "b", "c", "d"};
+
+	SECTION("should return result of calling the given function with the given acumulator and each element, storing the result in the accumulator after each call") {
+		REQUIRE( oneToFive.reduce(std::plus<int>(), 5) == 20 );
+		REQUIRE( oneToFive.reduce(std::multiplies<int>(), 10) == 1200 );
+		REQUIRE( abcd.reduce(std::plus<std::string>(), "_") == "_abcd" );
+	}
+
+	SECTION("when no accumulator is specified, should start by passing the given function with first two elements and so on") {
+		REQUIRE( oneToFive.reduce(std::plus<int>()) == 15 );
+		REQUIRE( oneToFive.reduce(std::multiplies<int>()) == 120 );
+		REQUIRE( oneToFive.reduce(std::minus<int>()) == -13 ); // 1 - 2 - 3 - 4 - 5
+		REQUIRE( abcd.reduce(std::plus<std::string>()) == "abcd");
+	}
+
+	SECTION("when an Array is empty, should return the initial value") {
+		REQUIRE( Array<std::string>().reduce(std::plus<std::string>(), "init") == "init" );
+		REQUIRE( emptyArray.reduce(std::plus<int>(), 101) == 101 );
+	}
+
+	SECTION("when an Array is empty and no initial value is given, should the default value of the type of its elements") {
+		REQUIRE( Array<std::string>().reduce(std::plus<std::string>()) == "" );
+		REQUIRE( emptyArray.reduce(std::plus<int>()) == 0 );
+	}
+}
+
+TEST_CASE("reduceRight method", "[Array]") {
+
+	Array<std::string> abcd{ "a", "b", "c", "d" };
+
+	SECTION("should return result of calling the given function with the given acumulator and each element (in reversed order), storing the result in the accumulator after each call") {
+		REQUIRE( oneToFive.reduceRight(std::plus<int>(), 5) == 20 );
+		REQUIRE( oneToFive.reduceRight(std::multiplies<int>(), 10) == 1200 );
+		REQUIRE( abcd.reduceRight(std::plus<std::string>(), "_") == "_dcba" );
+	}
+
+	SECTION("when no accumulator is specified, should start by passing the given function with last two elements and so on") {
+		REQUIRE( oneToFive.reduceRight(std::plus<int>()) == 15 );
+		REQUIRE( oneToFive.reduceRight(std::multiplies<int>()) == 120 );
+		REQUIRE( oneToFive.reduceRight(std::minus<int>()) == -5 ); // 5 - 4 - 3 - 2 - 1
+		REQUIRE( abcd.reduceRight(std::plus<std::string>()) == "dcba" );
+	}
+
+	SECTION("when an Array is empty, should return the initial value") {
+		REQUIRE(Array<std::string>().reduceRight(std::plus<std::string>(), "init") == "init");
+		REQUIRE(emptyArray.reduceRight(std::plus<int>(), 101) == 101);
+	}
+
+	SECTION("when an Array is empty and no initial value is given, should the default value of the type of its elements") {
+		REQUIRE(Array<std::string>().reduceRight(std::plus<std::string>()) == "");
+		REQUIRE(emptyArray.reduceRight(std::plus<int>()) == 0);
+	}
+}
+
+TEST_CASE("replace method", "[Array]") {
+
+	Array<int> oneToThree{ 1, 2, 3 };
+
+	SECTION("should replace all occurrences of the first given object with the second one") {
+		REQUIRE( oneToThree.replace(3, 10) == MakeArray(1, 2, 10) );
+		REQUIRE( Array<int>(5, 10).replace(10, 100) == Array<int>(5, 100) );
+	}
+
+	SECTION("if an Array does not include the given object, should not change the Array")
+		REQUIRE( oneToThree.replace(10, 0) == oneToThree );
+
+	SECTION("if an Array is empty, should sill be empty")
+		REQUIRE( Array<int>().replace(0, 0) == emptyArray );
+}
+
+TEST_CASE("replaceIf method", "[Array]") {
+
+	Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+
+	SECTION("should replace all the elements satisfying the given condition with the given object") {
+		REQUIRE( oneToSix.replaceIf(even, 11) == MakeArray(1, 11, 3, 11, 5, 11) );
+		REQUIRE( Array<int>(5, 10).replaceIf(even, 100) == Array<int>(5, 100) );
+	}
+
+	SECTION("if no element in an Array satisfies the given condition, should not change the Array")
+		REQUIRE( oneToSix.replaceIf(even, 0) == oneToSix );
+
+	SECTION("if an Array is empty, should sill be empty")
+		REQUIRE( Array<int>().replaceIf(even, 0) == emptyArray );
+}
+
+TEST_CASE("reverse method", "[Array]") {
+
+	Array<std::string> abcd{ "a", "b", "c", "d" };
+	Array<std::string> dcba{ "d", "c", "b", "a" };
+	Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+
+	SECTION("should reverse the order of the elements in an Array") {
+		REQUIRE( abcd.reverse() == dcba );
+		REQUIRE( oneToSix.reverse() == MakeArray(6, 5, 4, 3, 2, 1) );
+	}
+
+	SECTION("if an Array is empty, should sill be empty")
+		REQUIRE( Array<int>().reverse() == emptyArray );
 }

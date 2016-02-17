@@ -810,3 +810,39 @@ TEST_CASE("separate method", "[Array]") {
 	SECTION("should return an Array with two empty Arrays if there is no elements")
 		REQUIRE( emptyArray.separate(even) == MakeArray(emptyArray, emptyArray) );
 }
+
+TEST_CASE("shift method", "[Array]") {
+
+	Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+
+	SECTION("should remove the first element from an Array and return it") {
+		REQUIRE( oneToSix.shift() == 1 );
+		REQUIRE( oneToSix.size() == 5 );
+		REQUIRE_FALSE( oneToSix.includes(1) );
+	}
+
+	SECTION("when a number given, should remove the number of first elements and return them as new Array") {
+		REQUIRE( oneToSix.shift(3) == MakeArray(1, 2, 3) );
+		REQUIRE( oneToSix.size() == 3 );
+		REQUIRE( oneToSix == MakeArray(4, 5, 6) );
+	}
+
+	SECTION("when the given number is greater than the size of an Array, should clear the Array and return new Array with all elements") {
+		REQUIRE(oneToSix.shift(10) == MakeArray(1, 2, 3, 4, 5, 6));
+		REQUIRE(oneToSix.empty());
+	}
+}
+
+TEST_CASE("shuffle method", "[Array]") {
+
+	Array<int> oneToSix{ 1, 2, 3, 4, 5, 6 };
+
+	SECTION("shuffling an Array should not change its size")
+		REQUIRE( oneToSix.shuffle().size() == 6 );
+
+	SECTION("a shuffled Array should still contains each of its elements") {
+		oneToSix.shuffle();
+		for (int i = 1; i <= 6; ++i)
+			REQUIRE( oneToSix.includes(i) );
+	}
+}

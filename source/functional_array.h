@@ -1219,7 +1219,7 @@ public:
 	/**
 	*  Shuffles the Array (sets positions of the elements randomly).
 	*
-	*
+	*  @return				reference to self
 	*/
 	Array<T>& shuffle() {
 		std::shuffle(begin(), end(), randomNumberGenerator);

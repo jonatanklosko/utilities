@@ -309,25 +309,22 @@ TEST_CASE("eachAssign method", "[Array]") {
 		Array<int> oneToThree{ 1, 2, 3 };
 		Array<int> threeToFive{ 3, 4, 5 };
 		
-		oneToThree.eachAssign(add(2));
-		REQUIRE( oneToThree == threeToFive );
+		REQUIRE(oneToThree.eachAssign(add(2)) == threeToFive );
 	}
 }
 
 TEST_CASE("endsWith method", "[Array]") {
 
 	SECTION("should return true if the given Array is an ending of an Array") {
-		Array<int> threeToFive{ 3, 4, 5 };
-		REQUIRE(oneToFive.endsWith(threeToFive));
+		REQUIRE( oneToFive.endsWith(MakeArray(3, 4, 5)) );
+		REQUIRE( oneToFive.endsWith(MakeArray(5)) );
 	}
 
 	SECTION("should return true if the given Array is empty")
 		REQUIRE( oneToFive.endsWith(emptyArray) );
 
-	SECTION("should return false if the given Array is not an ending of an Array") {
-		Array<int> fourToSix{ 4, 5, 6 };
-		REQUIRE_FALSE( oneToFive.endsWith(fourToSix) );
-	}
+	SECTION("should return false if the given Array is not an ending of an Array")
+		REQUIRE_FALSE( oneToFive.endsWith(MakeArray(4, 5, 6)) );
 }
 
 TEST_CASE("filter method", "[Array]") {
@@ -340,7 +337,7 @@ TEST_CASE("filter method", "[Array]") {
 	}
 
 	SECTION("if every element satisfies the given condition, an Array should not change")
-		REQUIRE( oneToSix.filter(greaterThan(0)) == oneToSix );
+		REQUIRE( oneToSix.filter(greaterThan(0)) == MakeArray(1, 2, 3, 4, 5, 6) );
 
 	SECTION("if no element setisfies the given condition, an Array should become empty")
 		REQUIRE( oneToSix.filter(lessThan(0)) == emptyArray );
@@ -737,7 +734,7 @@ TEST_CASE("replace method", "[Array]") {
 	}
 
 	SECTION("if an Array does not include the given object, should not change the Array")
-		REQUIRE( oneToThree.replace(10, 0) == oneToThree );
+		REQUIRE( oneToThree.replace(10, 0) == MakeArray(1, 2, 3) );
 
 	SECTION("if an Array is empty, should sill be empty")
 		REQUIRE( Array<int>().replace(0, 0) == emptyArray );
@@ -753,7 +750,7 @@ TEST_CASE("replaceIf method", "[Array]") {
 	}
 
 	SECTION("if no element in an Array satisfies the given condition, should not change the Array")
-		REQUIRE( oneToSix.replaceIf(even, 0) == oneToSix );
+		REQUIRE( oneToSix.replaceIf(greaterThan(10), 0) == MakeArray(1, 2, 3, 4, 5, 6) );
 
 	SECTION("if an Array is empty, should sill be empty")
 		REQUIRE( Array<int>().replaceIf(even, 0) == emptyArray );
@@ -929,4 +926,87 @@ TEST_CASE("sortBy method", "[Array]") {
 															 Person("Jennifer", 35),
 															 Person("John", 85)) );
 	}
+
+	SECTION("when an Array is empty, should still be empty")
+		REQUIRE(Array<Person>().sortBy(&Person::name) == Array<Person>());
+}
+
+TEST_CASE("startsWith method", "[Array]") {
+
+	SECTION("should return true if the given Array is a beginning of an Array") {
+		REQUIRE( oneToFive.startsWith(MakeArray(1, 2, 3)) );
+		REQUIRE( oneToFive.startsWith(MakeArray(1)) );
+	}
+
+	SECTION("should return true if the given Array is empty")
+		REQUIRE( oneToFive.startsWith(emptyArray) );
+
+	SECTION("should return false if the given Array is not an ending of an Array")
+		REQUIRE_FALSE( oneToFive.startsWith(MakeArray(2, 3, 4)) );
+}
+
+TEST_CASE("swap method", "[Array]") {
+
+	SECTION("should swap the contents of an Array and the given one") {
+		Array<int> oneToThree{ 1, 2, 3 };
+		Array<int> fourToSix{ 4, 5, 6 };
+		REQUIRE( oneToThree.swap(fourToSix) == MakeArray(4, 5, 6) );
+		REQUIRE( fourToSix == MakeArray(1, 2, 3) );
+
+		REQUIRE( Array<int>().swap(Array<int>(5, 10)) == Array<int>(5, 10) );
+	}
+}
+
+TEST_CASE("unique method", "[Array]") {
+
+	SECTION("should remove all occurrences of the same element except the first one (saving the order)") {
+		REQUIRE( MakeArray(1, 3, 4, 1, 1, 5, 3, 4, 2).unique() == MakeArray(1, 3, 4, 5, 2) );
+		REQUIRE( Array<int>(5, 10).unique() == Array<int>(1, 10) );
+	}
+
+	SECTION("when each element is unique, should not change an Array") {
+		Array<int> oneToFour{ 1, 2, 3, 4 };
+		REQUIRE( oneToFour.unique() == MakeArray(1, 2, 3, 4) );
+	}
+}
+
+TEST_CASE("unshift method", "[Array]") {
+
+	SECTION("should take any number of elements and append them to the beginning of an Array") {
+		REQUIRE( MakeArray(2).unshift(1) == MakeArray(1, 2) );
+		REQUIRE( MakeArray(4, 5, 6).unshift(1, 2, 3) == MakeArray(1, 2, 3, 4, 5, 6) );
+
+		Array<int> oneToThree{ 1, 2, 3 };
+		REQUIRE( oneToThree.unshift(-1, 0).size() == 5 );
+		REQUIRE( oneToThree.startsWith(MakeArray(-1, 0)) );
+	}
+}
+
+
+TEST_CASE("operator<<", "[Array]") {
+
+	SECTION("should take an element and append it to the end of an Array") {
+		REQUIRE( (MakeArray(1) << 2) == MakeArray(1, 2));
+
+		Array<int> oneToThree{ 1, 2, 3 };
+		REQUIRE( (oneToThree << 4).size() == 4 );
+		REQUIRE( oneToThree.endsWith(MakeArray(4)) );
+	}
+
+	SECTION("should allow chaining")
+		REQUIRE( (MakeArray(1, 2, 3) << 4 << 5 << 6) == MakeArray(1, 2, 3, 4, 5, 6) );
+}
+
+TEST_CASE("operator*=", "[Array]") {
+
+	SECTION("should repleace an Array with the given number of its copies") {
+		REQUIRE( (MakeArray(1, 2) *= 2) == MakeArray(1, 2, 1, 2) );
+
+		Array<int> oneToThreeTimesFour{ 1, 2, 3 };
+		oneToThreeTimesFour *= 4;
+		REQUIRE( oneToThreeTimesFour == MakeArray(1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3) );
+	}
+
+	SECTION("when an Array is empty, should still be empty")
+		REQUIRE( (Array<int>() *= 2) == emptyArray );
 }

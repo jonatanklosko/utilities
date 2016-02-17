@@ -1337,6 +1337,12 @@ public:
 		return *this;
 	}
 
+	Array<T>& swap(Array<T>&& other) {
+		*this = move(other);
+
+		return *this;
+	}
+
 	/**
 	*  Removes all duplicates of each element of the Array,
 	*  making them unique.

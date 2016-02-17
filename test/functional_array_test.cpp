@@ -762,3 +762,35 @@ TEST_CASE("reverse method", "[Array]") {
 	SECTION("if an Array is empty, should sill be empty")
 		REQUIRE( Array<int>().reverse() == emptyArray );
 }
+
+TEST_CASE("rotate method", "[Array]") {
+
+	SECTION("should move all elements in an Array by the given number") {
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(1) == MakeArray(2, 3, 4, 1) );
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(2) == MakeArray(3, 4, 1, 2) );
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(3) == MakeArray(4, 1, 2, 3) );
+	}
+
+	SECTION("when the given number is negative, should move the elements in the opposite direction") {
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(-1) == MakeArray(4, 1, 2, 3) );
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(-2) == MakeArray(3, 4, 1, 2) );
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(-3) == MakeArray(2, 3, 4, 1) );
+	}
+
+	SECTION("when an Array is empty, should still be empty")
+		REQUIRE( Array<int>().rotate(2) == emptyArray );
+
+	SECTION("when the absolute value of the given numebr is greater than the size of an Array, should work correctly") {
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(5) == MakeArray(2, 3, 4, 1) );
+		REQUIRE( MakeArray(1, 2, 3).rotate(100) == MakeArray(1, 2, 3).rotate(1) );
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(-98) == MakeArray(1, 2, 3, 4).rotate(-2) );
+	}
+
+	SECTION("when the given number is congruent to 0 modulo the size of an Array, the Array should not change") {
+		REQUIRE( MakeArray(1, 2).rotate(0) == MakeArray(1, 2) );
+		REQUIRE( MakeArray(1, 2, 3, 4).rotate(88) == MakeArray(1, 2, 3, 4 ) );
+	}
+
+	SECTION("if an Array is empty, should sill be empty")
+		REQUIRE( Array<int>().rotate(10) == emptyArray );
+}

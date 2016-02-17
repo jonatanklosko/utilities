@@ -4,7 +4,7 @@
 
 #include "functors.h"
 
-// Tests resources
+// BEGIN Tests resources
 
 class Person {
 public:
@@ -18,7 +18,18 @@ private:
 	int age;
 };
 
-// end tests resources
+// Catch needs a way to print Array<Person> and operator<< for Array<Person> needs operator<< for Person
+std::ostream& operator<<(std::ostream& os, const Person& person) {
+	os << person.name;
+	return os;
+}
+
+// necessary for comparing objects of the class Array<People> in tests
+bool operator==(const Person& first, const Person& second) {
+	return (first.name == second.name) && (first.getAge() == second.getAge());
+}
+
+// END tests resources
 
 TEST_CASE("Array constructors", "[Array]") {
 
@@ -844,5 +855,78 @@ TEST_CASE("shuffle method", "[Array]") {
 		oneToSix.shuffle();
 		for (int i = 1; i <= 6; ++i)
 			REQUIRE( oneToSix.includes(i) );
+	}
+}
+
+TEST_CASE("slice method", "[Array]") {
+
+	SECTION("should return a new Array containing all elements in the specified range (excluding the end)") {
+		REQUIRE( oneToFive.slice(2, 4) == MakeArray(3, 4) );
+		REQUIRE( oneToFive.slice(1, 5) == MakeArray(2, 3, 4, 5) );
+		REQUIRE( oneToFive.slice(0, 5) == oneToFive );
+	}
+
+	SECTION("if only the beginning of the range is given, should return a new Array with all elements starting from it up to the end") {
+		REQUIRE( oneToFive.slice(2) == MakeArray(3, 4, 5) );
+		REQUIRE( oneToFive.slice(0) == oneToFive );
+		REQUIRE( oneToFive.slice(3) == MakeArray(4, 5) );
+	}
+
+	SECTION("when the second given index is greater than the size of an Array, should omit it") {
+		REQUIRE( oneToFive.slice(2, 10) == MakeArray(3, 4, 5) );
+		REQUIRE( oneToFive.slice(3, 100) == MakeArray(4, 5) );
+	}
+
+	SECTION("when the first given index is greater than the size of an Array, should return an empty Array") {
+		REQUIRE( oneToFive.slice(6, 10) == emptyArray );
+		REQUIRE( oneToFive.slice(5, 100) == emptyArray );
+	}
+
+	SECTION("when the first given intex is greater then the second one, should return an empty Array") {
+		REQUIRE( oneToFive.slice(2, 1) == emptyArray );
+		REQUIRE( oneToFive.slice(3, 3) == emptyArray );
+		REQUIRE( oneToFive.slice(6, 0) == emptyArray );
+	}
+}
+
+TEST_CASE("sort method", "[Array]") {
+
+	Array<int> mixedOneToFive{ 3, 5, 1, 4, 2 };
+
+	SECTION("when no function is specified, should sort elements in the ascending order from left to right") {
+		REQUIRE( mixedOneToFive.sort() == oneToFive );
+		REQUIRE( Array<int>(5, 10).sort() == Array<int>(5, 10) );
+	}
+	
+	SECTION("when the function is given, should sort elements using it to compare them")
+		REQUIRE( mixedOneToFive.sort(std::greater<int>()) == MakeArray(5, 4, 3, 2, 1) );
+
+
+	SECTION("when an Array is empty, should still be empty")
+		REQUIRE(Array<int>().sort() == emptyArray);
+}
+
+TEST_CASE("sortBy method", "[Array]") {
+
+	SECTION("should sort the elements by the results of calling the given function for each of them (in the ascending order)") {
+		Array<int> mixedOneToFive{ 3, 5, 1, 4, 2 };
+		REQUIRE( mixedOneToFive.sortBy([](int n){ return -n; }) == MakeArray(5, 4, 3, 2, 1) );
+	}
+
+	SECTION("should support both public member variable pointer and const member function pointer") {
+		Array<Person> people{ Person("Harry", 18),
+							  Person("John", 85),
+							  Person("Albert", 33),
+							  Person("Jennifer", 35) };
+
+		REQUIRE( people.sortBy(&Person::name) == MakeArray(Person("Albert", 33),
+														   Person("Harry", 18),
+														   Person("Jennifer", 35),
+														   Person("John", 85)) );
+
+		REQUIRE( people.sortBy(&Person::getAge) == MakeArray(Person("Harry", 18),
+															 Person("Albert", 33),
+															 Person("Jennifer", 35),
+															 Person("John", 85)) );
 	}
 }

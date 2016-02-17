@@ -794,3 +794,19 @@ TEST_CASE("rotate method", "[Array]") {
 	SECTION("if an Array is empty, should sill be empty")
 		REQUIRE( Array<int>().rotate(10) == emptyArray );
 }
+
+TEST_CASE("separate method", "[Array]") {
+
+	SECTION("should return an Array with two Arrays, the first one containing all the elements that satisfy the given condition, and the second one with the rest of them") {
+		REQUIRE( oneToFive.separate(even) == MakeArray(MakeArray(2, 4), MakeArray(1, 3, 5)) );
+		REQUIRE( oneToFive.separate(greaterThan(3)) == MakeArray(MakeArray(4, 5), MakeArray(1, 2, 3)) );
+	}
+
+	SECTION("should return an Array with two Arrays even if one of them is empty") {
+		REQUIRE( oneToFive.separate(greaterThan(0)) == MakeArray(oneToFive, emptyArray) );
+		REQUIRE( oneToFive.separate(greaterThan(10)) == MakeArray(emptyArray, oneToFive) );
+	}
+
+	SECTION("should return an Array with two empty Arrays if there is no elements")
+		REQUIRE( emptyArray.separate(even) == MakeArray(emptyArray, emptyArray) );
+}

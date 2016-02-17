@@ -1629,7 +1629,8 @@ bool operator>=(const Array<T>& first, const Array<T>& second) {
 *  @return					an Array of the type of the first given object
 *							containing all the arguments
 */
-template <class... Objects, class ElementsType = typename std::tuple_element<0, std::tuple<Objects...>>::type>
+template <class... Objects,
+	class ElementsType = typename std::decay<typename std::tuple_element<0, std::tuple<Objects...>>::type>::type>
 Array<ElementsType> MakeArray(Objects&&... objects) {
 	return Array<ElementsType>{ objects... };
 }

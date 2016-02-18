@@ -1582,7 +1582,7 @@ bool operator!=(const Array<T>& first, const Array<T>& second) {
 */
 template <class T>
 bool operator<(const Array<T>& first, const Array<T>& second) {
-	return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), std::less<T>());
+	return first.compare(second) == -1;
 }
 
 /**
@@ -1594,7 +1594,7 @@ bool operator<(const Array<T>& first, const Array<T>& second) {
 */
 template <class T>
 bool operator>(const Array<T>& first, const Array<T>& second) {
-	return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), std::greater<T>());
+	return first.compare(second) == 1;
 }
 
 /**
@@ -1606,7 +1606,7 @@ bool operator>(const Array<T>& first, const Array<T>& second) {
 */
 template <class T>
 bool operator<=(const Array<T>& first, const Array<T>& second) {
-	return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), std::less<T>());
+	return first.compare(second) != 1;
 }
 
 /**
@@ -1618,7 +1618,7 @@ bool operator<=(const Array<T>& first, const Array<T>& second) {
 */
 template <class T>
 bool operator>=(const Array<T>& first, const Array<T>& second) {
-	return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(), std::greater_equal<T>());
+	return first.compare(second) != -1;
 }
 
 // helpers //

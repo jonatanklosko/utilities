@@ -1010,3 +1010,150 @@ TEST_CASE("operator*=", "[Array]") {
 	SECTION("when an Array is empty, should still be empty")
 		REQUIRE( (Array<int>() *= 2) == emptyArray );
 }
+
+TEST_CASE("operator&", "[Array]") {
+
+	SECTION("should return set intersection of two Arrays as a new Array") {
+		REQUIRE( (MakeArray(4, 2, 1, 3) & MakeArray(5, 2, 3, 7, 5, 4)) == MakeArray(4, 2, 3) );
+		REQUIRE( (oneToFive & Array<int>(5, 3)) == MakeArray(3) );
+	}
+
+	SECTION("should return a new Array with unique elements")
+		REQUIRE( (Array<int>(5, 10) & Array<int>(5, 10)) == MakeArray(10) );
+
+	SECTION("if one of the given Arrays is empty, should return an empty Array")
+		REQUIRE((oneToFive & Array<int>()) == emptyArray);
+}
+
+TEST_CASE("operator==", "[Array]") {
+
+	SECTION("should return true if and only if the two given Arrays contain the same number of elements and every element in the first Array is equal to the corresponding one in the second Array") {
+		REQUIRE( Array<int>(5, 10) == Array<int>(5, 10) );
+		REQUIRE( oneToFive == MakeArray(1, 2, 3, 4, 5) );
+		REQUIRE( MakeArray(1, 10) == MakeArray(1, 10) );
+
+		REQUIRE_FALSE( oneToFive == MakeArray(2, 1, 3, 4, 5) );
+		REQUIRE_FALSE( Array<int>(5, 10) == Array<int>(6, 10) );
+		REQUIRE_FALSE( MakeArray(2, 3, 4) == MakeArray(4, 3, 2) );
+		REQUIRE_FALSE( MakeArray(1) == MakeArray(1, 2) );
+	}
+
+	SECTION("should return true if both the given Arrays are empty")
+		REQUIRE( emptyArray == Array<int>() );
+}
+
+TEST_CASE("operator!=", "[Array]") {
+
+	SECTION("should return true if and only if the two given Arrays do not contain the same number of elements or at least one element in the first Array is not equal to the corresponding one in the second Array") {
+		REQUIRE_FALSE( Array<int>(5, 10) != Array<int>(5, 10) );
+		REQUIRE_FALSE( oneToFive != MakeArray(1, 2, 3, 4, 5) );
+		REQUIRE_FALSE( MakeArray(1, 10) != MakeArray(1, 10) );
+
+		REQUIRE( oneToFive != MakeArray(2, 1, 3, 4, 5) );
+		REQUIRE( Array<int>(5, 10) != Array<int>(6, 10) );
+		REQUIRE( MakeArray(2, 3, 4) != MakeArray(4, 3, 2) );
+		REQUIRE( MakeArray(1) != MakeArray(1, 2) );
+	}
+
+	SECTION("should return false if both the given Arrays are empty")
+		REQUIRE_FALSE(emptyArray != Array<int>());
+}
+
+TEST_CASE("operator<", "[Array]") {
+
+	SECTION("should return result of comparing two Arrays lexicographically") {
+		REQUIRE( MakeArray(1, 2) < MakeArray(1, 2, 3) );
+		REQUIRE( MakeArray(1, 2) < MakeArray(2) );
+		REQUIRE( MakeArray(1, 2, 3) < MakeArray(1, 3, 2) );
+		REQUIRE( MakeArray(6, 3, 2, 5) < MakeArray(6, 4, 1, 0) );
+
+		REQUIRE_FALSE( MakeArray(1, 2, 3) < MakeArray(1, 2) );
+		REQUIRE_FALSE( MakeArray(1) < emptyArray );
+		REQUIRE_FALSE( Array<int>(5, 10) < Array<int>(4, 10) );
+	}
+
+	SECTION("should return false if the Arrays are equal")
+		REQUIRE_FALSE( oneToFive < MakeArray(1, 2, 3, 4, 5) );
+}
+
+TEST_CASE("operator>", "[Array]") {
+
+	SECTION("should return result of comparing two Arrays lexicographically") {
+		REQUIRE( MakeArray(1, 2, 3) > MakeArray(1, 2) );
+		REQUIRE( MakeArray(2) > MakeArray(1, 2) );
+		REQUIRE( MakeArray(1, 3, 2) > MakeArray(1, 2, 3) );
+		REQUIRE( MakeArray(6, 4, 1, 0) > MakeArray(6, 3, 2, 5) );
+
+		REQUIRE_FALSE( emptyArray > MakeArray(1) );
+		REQUIRE_FALSE( Array<int>(4, 10) > Array<int>(5, 10) );
+	}
+
+	SECTION("should return false if the Arrays are equal")
+		REQUIRE_FALSE( oneToFive > MakeArray(1, 2, 3, 4, 5) );
+}
+
+TEST_CASE("operator<=", "[Array]") {
+
+	SECTION("should return result of comparing two Arrays lexicographically") {
+		REQUIRE( MakeArray(1, 2) <= MakeArray(1, 2, 3) );
+		REQUIRE( MakeArray(1, 2) <= MakeArray(2) );
+		REQUIRE( MakeArray(1, 2, 3) <= MakeArray(1, 3, 2) );
+		REQUIRE( MakeArray(6, 3, 2, 5) <= MakeArray(6, 4, 1, 0) );
+
+		REQUIRE_FALSE( MakeArray(1, 2, 3) <= MakeArray(1, 2) );
+		REQUIRE_FALSE( MakeArray(1) <= emptyArray );
+		REQUIRE_FALSE( Array<int>(5, 10) <= Array<int>(4, 10) );
+	}
+
+	SECTION("should return true if the Arrays are equal")
+		REQUIRE(oneToFive <= MakeArray(1, 2, 3, 4, 5));
+}
+
+TEST_CASE("operator>=", "[Array]") {
+
+	SECTION("should return result of comparing two Arrays lexicographically") {
+		REQUIRE( MakeArray(1, 2, 3) >= MakeArray(1, 2) );
+		REQUIRE( MakeArray(2) >= MakeArray(1, 2) );
+		REQUIRE( MakeArray(1, 3, 2) >= MakeArray(1, 2, 3) );
+		REQUIRE( MakeArray(6, 4, 1, 0) >= MakeArray(6, 3, 2, 5) );
+
+		REQUIRE_FALSE( emptyArray > MakeArray(1) );
+		REQUIRE_FALSE( Array<int>(4, 10) > Array<int>(5, 10) );
+	}
+
+	SECTION("should return true if the Arrays are equal")
+		REQUIRE( oneToFive >= MakeArray(1, 2, 3, 4, 5) );
+}
+
+TEST_CASE("MakeArray helper", "[Array]") {
+
+	SECTION("should return an Array containing all the given arguments") {
+		REQUIRE( MakeArray(1, 2, 3, 4, 5) == oneToFive );
+		REQUIRE( MakeArray(10, 10, 10) == Array<int>(3, 10) );
+		REQUIRE( MakeArray(3, 5, 10, 2, 8) == (Array<int>{3, 5, 10, 2, 8}) );
+	}
+
+	SECTION("the type of the elements of the returned Array, should be the same as the type of the first given argument") {
+		REQUIRE( MakeArray(std::string("a"), "b", "c") == (Array<std::string>{"a", "b", "c"}) );
+		REQUIRE( MakeArray(1.1, 2.2, 3.3) == (Array<double>{1.1, 2.2, 3.3}) );
+	}
+
+	SECTION("should work correctly with variables") {
+		int one = 1;
+		int two = 2;
+		REQUIRE( MakeArray(one, two, 3, 4, 5) == oneToFive );
+	}
+}
+
+TEST_CASE("ostream operator<<", "[Array]") {
+
+	SECTION("should put all the elements in the stream between square brackets, each two separated by comma and space") {
+		std::stringstream stream;
+		stream << oneToFive;
+		REQUIRE( stream.str() == "[1, 2, 3, 4, 5]" );
+
+		stream.str("");
+		stream << emptyArray;
+		REQUIRE( stream.str() == "[]" );
+	}
+}
